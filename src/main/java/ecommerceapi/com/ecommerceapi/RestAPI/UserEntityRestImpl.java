@@ -1,5 +1,6 @@
 package ecommerceapi.com.ecommerceapi.RestAPI;
 
+import ecommerceapi.com.ecommerceapi.DTO.LoginDTO;
 import ecommerceapi.com.ecommerceapi.DTO.UserEntityDTO;
 import ecommerceapi.com.ecommerceapi.Entity.Role;
 import ecommerceapi.com.ecommerceapi.Entity.UserEntity;
@@ -10,12 +11,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +27,9 @@ public class UserEntityRestImpl  implements UserEntityAPI {
 
     @Autowired
     public RoleService roleService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Override
     public ResponseEntity<List<UserEntity>> findAllUser() {
@@ -39,7 +44,7 @@ public class UserEntityRestImpl  implements UserEntityAPI {
     }
 
     @Override
-    public ResponseEntity<String> save(UserEntityDTO request) {
+    public ResponseEntity<String> signup(UserEntityDTO request) {
 
         try{
             if (validateSignUp(request)) {
@@ -63,6 +68,15 @@ public class UserEntityRestImpl  implements UserEntityAPI {
         return  new ResponseEntity<>("Invalid request",HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<String> login(LoginDTO request) {
+        Authentication authentication =authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),request.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return new ResponseEntity<>("Logged in", HttpStatus.OK);
+    }
+
     private boolean validateSignUp(UserEntityDTO request){
 
         if(!request.getFirstname().equals("") && !request.getLastname().equals("") &&
@@ -82,10 +96,8 @@ public class UserEntityRestImpl  implements UserEntityAPI {
 
 
     private UserEntity getUserFromMap(UserEntityDTO userdto){
-        // UserEntity user= userService.getUserByEmail(userdto.getEmail());
+
         Role role = roleService.getRoleByName(userdto.getRole());
-        List<Role> r= new ArrayList<>();
-        r.add(role);
 
         UserEntity user=new UserEntity();
         user.setFirstname(userdto.getFirstname().toUpperCase(Locale.ROOT));
@@ -95,7 +107,7 @@ public class UserEntityRestImpl  implements UserEntityAPI {
         user.setPhone(userdto.getPhone());
         user.setPassword(userdto.getPassword());
         user.setImageName(userdto.getImageName());
-        user.setRole(r);
+        user.setRole(Collections.singletonList(role));
         return  user;
     }
 
