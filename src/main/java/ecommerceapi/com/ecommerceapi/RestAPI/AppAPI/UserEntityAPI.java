@@ -1,5 +1,6 @@
 package ecommerceapi.com.ecommerceapi.RestAPI.AppAPI;
 
+import ecommerceapi.com.ecommerceapi.DTO.LoginDTO;
 import ecommerceapi.com.ecommerceapi.DTO.UserEntityDTO;
 import ecommerceapi.com.ecommerceapi.Entity.UserEntity;
 import org.springframework.http.ResponseEntity;
@@ -17,5 +18,9 @@ public interface UserEntityAPI {
     public ResponseEntity<UserEntity> getUserByEmail(@PathVariable("email") String email);
 
     @PostMapping(path="/save")
-    public ResponseEntity<String> save(@RequestBody UserEntityDTO request);
+    public ResponseEntity<String> signup(@RequestBody UserEntityDTO request);
+
+    @PostMapping(path="/save")
+    public ResponseEntity<String> login(@RequestBody LoginDTO request);
+
 }
