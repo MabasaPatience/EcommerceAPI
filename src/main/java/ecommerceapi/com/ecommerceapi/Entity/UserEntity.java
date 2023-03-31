@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="role")
+@Table(name="user")
 public class UserEntity {
     private static final long serialVersionUID = 1L;
     @Id
